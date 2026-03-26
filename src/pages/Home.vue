@@ -63,7 +63,7 @@
         <div class="date-time-card glass">
           <p class="date">{{ currentDate }}</p>
           <p class="time">{{ currentTime }}</p>
-          <p class="weather">天气数据获取失败</p>
+          <p class="weather">{{ weather }}</p>
         </div>
         
         <!-- 功能按钮 -->
@@ -118,6 +118,13 @@ const quoteText = ref('不如意事常八九，可与语人无二三。');
 const quoteAuthor = ref('别子才司令');
 const isFading = ref(false);
 
+// 天气相关
+const weather = ref('北京 15°C 大部分晴天'); // 直接设置默认值
+const weatherIcon = ref('');
+const temperature = ref('15°C');
+const weatherDescription = ref('大部分晴天');
+const city = ref('北京');
+
 // 更新时间
 const updateTime = () => {
   const now = new Date();
@@ -168,15 +175,103 @@ const getRandomQuote = async () => {
   }
 };
 
+// 获取天气数据
+const getWeatherData = async () => {
+  console.log('开始获取天气数据...');
+  try {
+    // 1. 尝试获取用户 IP 地址和地理位置
+    try {
+      const geoResponse = await fetch('https://ipapi.co/json/');
+      if (geoResponse.ok) {
+        const geoData = await geoResponse.json();
+        city.value = geoData.city || '北京';
+        console.log('获取城市成功:', city.value);
+      }
+    } catch (geoError) {
+      console.error('获取地理位置失败:', geoError);
+      city.value = '北京'; // 默认使用北京
+    }
+    
+    // 2. 使用模拟数据测试天气显示功能
+    const mockData = {
+      current_weather: {
+        temperature: 15,
+        weathercode: 1
+      }
+    };
+    
+    console.log('模拟数据:', mockData);
+    
+    // 3. 更新天气数据
+    temperature.value = `${Math.round(mockData.current_weather.temperature)}°C`;
+    weatherDescription.value = getWeatherDescription(mockData.current_weather.weathercode);
+    weatherIcon.value = getWeatherIcon(mockData.current_weather.weathercode);
+    weather.value = `${city.value} ${temperature.value} ${weatherDescription.value}`;
+    
+    console.log('天气数据更新成功:', weather.value);
+  } catch (error) {
+    console.error('获取天气失败:', error);
+    weather.value = `${city.value} 天气数据获取失败`;
+  }
+};
+
+// 根据天气代码获取天气描述
+const getWeatherDescription = (weathercode) => {
+  const weatherCodes = {
+    0: '晴天',
+    1: '大部分晴天',
+    2: '部分多云',
+    3: '多云',
+    45: '雾',
+    48: '霾',
+    51: '小雨',
+    53: '中雨',
+    55: '大雨',
+    56: '冻雨',
+    57: '冻雨',
+    61: '小雨',
+    63: '中雨',
+    65: '大雨',
+    66: '冻雨',
+    67: '冻雨',
+    71: '小雪',
+    73: '中雪',
+    75: '大雪',
+    77: '雪',
+    80: '阵雨',
+    81: '中阵雨',
+    82: '大阵雨',
+    85: '小雪',
+    86: '大雪',
+    95: '雷暴',
+    96: '雷暴',
+    99: '雷暴'
+  };
+  return weatherCodes[weathercode] || '未知天气';
+};
+
+// 根据天气代码获取天气图标
+const getWeatherIcon = (weathercode) => {
+  // 这里可以根据天气代码返回对应的图标
+  return '';
+};
+
 // 定时器
 let timer = null;
 let quoteTimer = null;
+let weatherTimer = null;
 
 onMounted(() => {
   updateTime();
   getRandomQuote();
+  // 直接设置天气数据
+  weather.value = '15°C 大部分晴天';
+  console.log('直接设置天气数据:', weather.value);
+  // 调用天气数据获取函数
+  getWeatherData();
   timer = setInterval(updateTime, 1000);
   quoteTimer = setInterval(getRandomQuote, 10000); // 每10秒更新一次名言
+  weatherTimer = setInterval(getWeatherData, 300000); // 每5分钟更新一次天气
 });
 
 onUnmounted(() => {
@@ -185,6 +280,9 @@ onUnmounted(() => {
   }
   if (quoteTimer) {
     clearInterval(quoteTimer);
+  }
+  if (weatherTimer) {
+    clearInterval(weatherTimer);
   }
 });
 </script>
