@@ -53,8 +53,10 @@
       <div class="right-section">
         <!-- 引言卡片 -->
         <div class="quote-card glass">
-          <p class="quote-text">不如意事常八九，可与语人无二三。</p>
-          <p class="quote-author">- 「别子才司令」</p>
+          <div :class="{ 'fade': isFading }">
+            <p class="quote-text">{{ quoteText }}</p>
+            <p class="quote-author">- 「{{ quoteAuthor }}」</p>
+          </div>
         </div>
         
         <!-- 日期时间卡片 -->
@@ -111,6 +113,11 @@ const hourDegrees = ref(0);
 const minuteDegrees = ref(0);
 const secondDegrees = ref(0);
 
+// 名言相关
+const quoteText = ref('不如意事常八九，可与语人无二三。');
+const quoteAuthor = ref('别子才司令');
+const isFading = ref(false);
+
 // 更新时间
 const updateTime = () => {
   const now = new Date();
@@ -136,17 +143,48 @@ const updateTime = () => {
   hourDegrees.value = (totalSeconds % 43200) * (360 / 43200);
 };
 
+// 获取随机名言
+const getRandomQuote = async () => {
+  try {
+    // 触发淡出效果
+    isFading.value = true;
+    
+    // 等待淡出完成后更新内容
+    setTimeout(async () => {
+      const response = await fetch('https://v1.hitokoto.cn/');
+      const data = await response.json();
+      quoteText.value = data.hitokoto;
+      quoteAuthor.value = data.from;
+      
+      // 触发淡入效果
+      setTimeout(() => {
+        isFading.value = false;
+      }, 100);
+    }, 500);
+  } catch (error) {
+    console.error('获取名言失败:', error);
+    // 出错时也要恢复显示
+    isFading.value = false;
+  }
+};
+
 // 定时器
 let timer = null;
+let quoteTimer = null;
 
 onMounted(() => {
   updateTime();
+  getRandomQuote();
   timer = setInterval(updateTime, 1000);
+  quoteTimer = setInterval(getRandomQuote, 10000); // 每10秒更新一次名言
 });
 
 onUnmounted(() => {
   if (timer) {
     clearInterval(timer);
+  }
+  if (quoteTimer) {
+    clearInterval(quoteTimer);
   }
 });
 </script>
@@ -328,6 +366,14 @@ onUnmounted(() => {
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   border-radius: 12px;
+}
+
+.quote-card > div {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.quote-card > div.fade {
+  opacity: 0;
 }
 
 .quote-text {
