@@ -19,15 +19,17 @@
         
         <!-- 网站信息 -->
         <div class="site-info">
-          <h1 class="site-name">imsyy.top</h1>
+          <h1 class="site-name">XDCSHUB</h1>
           <p class="welcome-text">Hello, World!</p>
-          <p class="site-desc">一个建立于 21 世纪的小站，游荡于互联网的边缘</p>
+          <p class="site-desc">兄弟CS网站</p>
         </div>
         
         <!-- 社交图标 -->
         <div class="social-icons">
-          <a href="#" class="social-icon">
-            <span class="icon-text">R</span>
+          <a href="https://github.com/kernel12345" target="_blank" class="social-icon">
+            <svg class="icon" width="16" height="16">
+              <use xlink:href="/icons.svg#github-icon"></use>
+            </svg>
           </a>
           <a href="#" class="social-icon">
             <span class="icon-text">C</span>
@@ -90,11 +92,11 @@
           </a>
         </div>
       </div>
-      
-      <!-- 底部版权信息 -->
-      <div class="footer">
-        <p>Copyright © 2020 - 2024 | Made by imsyy | 冀ICP备2022131545-1</p>
-      </div>
+    </div>
+    
+    <!-- 底部版权信息 -->
+    <div class="footer">
+      <p>Copyright © 2020 - 2024 | Made by 韦旅淦</p>
     </div>
   </div>
 </template>
@@ -303,6 +305,12 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
+.icon {
+  fill: white;
+  width: 16px;
+  height: 16px;
+}
+
 .social-icon:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-3px);
@@ -396,13 +404,15 @@ onUnmounted(() => {
 
 /* 底部版权信息 */
 .footer {
-  grid-column: 1 / -1;
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
   text-align: center;
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   font-size: 0.8rem;
   opacity: 0.7;
-  margin-top: 2rem;
 }
 
 /* 毛玻璃效果 */
