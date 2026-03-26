@@ -75,4 +75,39 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// 登录路由
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // 查找用户
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    
+    // 验证密码
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    
+    // 登录成功
+    res.json({ 
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
+  } catch (err) {
+    if (err.message.includes('timed out')) {
+      res.status(503).json({ message: 'Database connection timeout' });
+    } else {
+      res.status(500).json({ message: err.message });
+    }
+  }
+});
+
 module.exports = router;

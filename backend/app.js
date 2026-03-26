@@ -16,6 +16,7 @@ mongoose.connect('mongodb://localhost:27017/blog')
 })
 .catch(err => {
   console.error('MongoDB connection error:', err);
+  console.log('Server will continue running without MongoDB');
 });
 
 // 路由
