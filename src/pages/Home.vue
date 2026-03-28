@@ -34,23 +34,20 @@
                 <use xlink:href="/icons.svg#github-icon"></use>
               </svg>
             </div>
-            <div class="social-icon">
-              <span class="icon-text">C</span>
-            </div>
-            <div class="social-icon">
-              <span class="icon-text">M</span>
-            </div>
-            <div class="social-icon">
-              <span class="icon-text">T</span>
-            </div>
-            <div class="social-icon">
-              <span class="icon-text">I</span>
-            </div>
-            <div class="social-icon">
-              <span class="icon-text">G</span>
-            </div>
+            <a href="https://steamcommunity.com/chat/invite/JEkxtvGe" target="_blank" class="social-icon steam-icon">
+              <img src="/images/steam.png" alt="Steam" width="16" height="16">
+            </a>
+            <a href="https://qm.qq.com/q/bDK3BOyEr6" target="_blank" class="social-icon qq-icon">
+              <img src="/images/qq.png" alt="QQ" width="16" height="16">
+            </a>
             <div class="github-link">
               去 Github 看看
+            </div>
+            <div class="steam-link">
+              加入steam群组
+            </div>
+            <div class="qq-link">
+              加入QQ群
             </div>
           </div>
         </div>
@@ -450,7 +447,7 @@ onUnmounted(() => {
 
 .social-icons-container {
   width: 100%;
-  max-width: 600px;
+  max-width: 400px;
   overflow: hidden;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
@@ -467,18 +464,7 @@ onUnmounted(() => {
   gap: 1rem;
   padding: 0.8rem 1rem;
   transition: all 0.3s ease;
-}
-
-.github-link {
-  margin-left: auto;
-  color: white;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.github-link:hover {
-  text-decoration: underline;
+  position: relative;
 }
 
 .social-icon {
@@ -498,16 +484,28 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-.github-link {
+.github-link, .steam-link, .qq-link {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
   color: white;
   font-size: 0.9rem;
   font-weight: 500;
+  position: absolute;
+  right: 1rem;
 }
 
 .github-icon:hover ~ .github-link {
+  opacity: 1;
+  visibility: visible;
+}
+
+.steam-icon:hover ~ .steam-link {
+  opacity: 1;
+  visibility: visible;
+}
+
+.qq-icon:hover ~ .qq-link {
   opacity: 1;
   visibility: visible;
 }
