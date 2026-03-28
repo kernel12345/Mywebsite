@@ -1,51 +1,58 @@
 <template>
   <div class="home">
     <!-- 背景图片 -->
-    <div class="background"></div>
+    <div class="background" :style="{ backgroundImage: `url(${backgroundImage})` }"></div>
     
     <!-- 主内容 -->
     <div class="main-content">
       <!-- 左侧：时钟和网站信息 -->
       <div class="left-section">
-        <!-- 时钟 -->
-        <div class="clock">
-          <div class="clock-face">
-            <div class="hour-hand" :style="{ transform: `rotate(${hourDegrees}deg)` }"></div>
-            <div class="minute-hand" :style="{ transform: `rotate(${minuteDegrees}deg)` }"></div>
-            <div class="second-hand" :style="{ transform: `rotate(${secondDegrees}deg)` }"></div>
-            <div class="center-dot"></div>
+        <!-- 时钟和网站名称 -->
+        <div class="clock-and-name">
+          <div class="clock">
+            <div class="clock-face">
+              <div class="hour-hand" :style="{ transform: `rotate(${hourDegrees}deg)` }"></div>
+              <div class="minute-hand" :style="{ transform: `rotate(${minuteDegrees}deg)` }"></div>
+              <div class="second-hand" :style="{ transform: `rotate(${secondDegrees}deg)` }"></div>
+              <div class="center-dot"></div>
+            </div>
           </div>
+          <h1 class="site-name">XDCSHUB</h1>
         </div>
         
         <!-- 网站信息 -->
-        <div class="site-info">
-          <h1 class="site-name">XDCSHUB</h1>
+        <div class="site-info glass">
           <p class="welcome-text">Hello, World!</p>
           <p class="site-desc">兄弟CS网站</p>
         </div>
         
         <!-- 社交图标 -->
-        <div class="social-icons">
-          <a href="https://github.com/kernel12345" target="_blank" class="social-icon">
-            <svg class="icon" width="16" height="16">
-              <use xlink:href="/icons.svg#github-icon"></use>
-            </svg>
-          </a>
-          <a href="#" class="social-icon">
-            <span class="icon-text">C</span>
-          </a>
-          <a href="#" class="social-icon">
-            <span class="icon-text">M</span>
-          </a>
-          <a href="#" class="social-icon">
-            <span class="icon-text">T</span>
-          </a>
-          <a href="#" class="social-icon">
-            <span class="icon-text">I</span>
-          </a>
-          <a href="#" class="social-icon">
-            <span class="icon-text">G</span>
-          </a>
+        <div class="social-icons-container">
+          <div class="social-icons">
+            <div class="social-icon github-icon">
+              <svg class="icon" width="16" height="16">
+                <use xlink:href="/icons.svg#github-icon"></use>
+              </svg>
+            </div>
+            <div class="social-icon">
+              <span class="icon-text">C</span>
+            </div>
+            <div class="social-icon">
+              <span class="icon-text">M</span>
+            </div>
+            <div class="social-icon">
+              <span class="icon-text">T</span>
+            </div>
+            <div class="social-icon">
+              <span class="icon-text">I</span>
+            </div>
+            <div class="social-icon">
+              <span class="icon-text">G</span>
+            </div>
+            <div class="github-link">
+              去 Github 看看
+            </div>
+          </div>
         </div>
       </div>
       
@@ -98,7 +105,7 @@
     
     <!-- 底部版权信息 -->
     <div class="footer">
-      <p>Copyright © 2020 - 2024 | Made by 韦旅淦</p>
+      <p>Copyright © 2025 - 2026 | Made by 韦旅淦</p>
     </div>
   </div>
 </template>
@@ -124,6 +131,9 @@ const weatherIcon = ref('');
 const temperature = ref('15°C');
 const weatherDescription = ref('大部分晴天');
 const city = ref('北京');
+
+// 背景图片相关
+const backgroundImage = ref('/images/background.jpg'); // 默认背景
 
 // 更新时间
 const updateTime = () => {
@@ -179,9 +189,9 @@ const getRandomQuote = async () => {
 const getWeatherData = async () => {
   console.log('开始获取天气数据...');
   try {
-    // 1. 尝试获取用户 IP 地址和地理位置
+    // 1. 尝试获取用户 IP 地址和地理位置 - 使用另一个免费的地理位置服务
     try {
-      const geoResponse = await fetch('https://ipapi.co/json/');
+      const geoResponse = await fetch('https://ipinfo.io/json');
       if (geoResponse.ok) {
         const geoData = await geoResponse.json();
         city.value = geoData.city || '北京';
@@ -256,6 +266,19 @@ const getWeatherIcon = (weathercode) => {
   return '';
 };
 
+// 获取随机背景图片
+const getRandomBackground = () => {
+  try {
+    // 直接使用图片 URL，添加随机参数避免缓存
+    const randomParam = Math.random().toString(36).substring(2, 15);
+    backgroundImage.value = `https://api.yppp.net/pc.php?${randomParam}`;
+  } catch (error) {
+    console.error('获取背景图片失败:', error);
+    // 失败时使用默认背景
+    backgroundImage.value = '/images/background.jpg';
+  }
+};
+
 // 定时器
 let timer = null;
 let quoteTimer = null;
@@ -264,6 +287,7 @@ let weatherTimer = null;
 onMounted(() => {
   updateTime();
   getRandomQuote();
+  getRandomBackground(); // 获取随机背景图片
   // 直接设置天气数据
   weather.value = '15°C 大部分晴天';
   console.log('直接设置天气数据:', weather.value);
@@ -304,7 +328,6 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('/images/background.jpg');
   background-size: cover;
   background-position: center;
   z-index: -1;
@@ -327,6 +350,12 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+.clock-and-name {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .clock {
@@ -394,12 +423,17 @@ onUnmounted(() => {
 .site-info {
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 400px;
 }
 
 .site-name {
   font-size: 2.5rem;
   margin: 0 0 0.5rem 0;
   font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-text {
@@ -414,9 +448,37 @@ onUnmounted(() => {
   max-width: 400px;
 }
 
+.social-icons-container {
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  transition: all 0.3s ease;
+}
+
 .social-icons {
   display: flex;
+  align-items: center;
   gap: 1rem;
+  padding: 0.8rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.github-link {
+  margin-left: auto;
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.github-link:hover {
+  text-decoration: underline;
 }
 
 .social-icon {
@@ -434,6 +496,20 @@ onUnmounted(() => {
   text-decoration: none;
   transition: all 0.3s ease;
   font-weight: bold;
+}
+
+.github-link {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.github-icon:hover ~ .github-link {
+  opacity: 1;
+  visibility: visible;
 }
 
 .icon-text {
@@ -490,7 +566,8 @@ onUnmounted(() => {
 .date-time-card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
 }
 
 .date {
@@ -502,7 +579,8 @@ onUnmounted(() => {
   font-size: 1.8rem;
   font-weight: bold;
   margin: 0 0 0.3rem 0;
-  font-family: 'Courier New', monospace;
+  font-family: 'Courier New', monospace, 'Digital', 'DS-Digital', sans-serif;
+  letter-spacing: 1px;
 }
 
 .weather {
