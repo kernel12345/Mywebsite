@@ -37,6 +37,9 @@
             <a href="https://steamcommunity.com/chat/invite/JEkxtvGe" target="_blank" class="social-icon steam-icon">
               <img src="/images/steam.png" alt="Steam" width="16" height="16">
             </a>
+            <a href="#" target="_blank" class="social-icon teamspeak-icon">
+              <img src="/images/teamspeak.png" alt="Teamspeak" width="16" height="16">
+            </a>
             <a href="https://qm.qq.com/q/bDK3BOyEr6" target="_blank" class="social-icon qq-icon">
               <img src="/images/qq.png" alt="QQ" width="16" height="16">
             </a>
@@ -48,6 +51,9 @@
             </div>
             <div class="qq-link">
               加入QQ群
+            </div>
+            <div class="teamspeak-link">
+              加入我们的teamspeak频道
             </div>
           </div>
         </div>
@@ -484,7 +490,7 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-.github-link, .steam-link, .qq-link {
+.github-link, .steam-link, .qq-link, .teamspeak-link {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
@@ -506,6 +512,11 @@ onUnmounted(() => {
 }
 
 .qq-icon:hover ~ .qq-link {
+  opacity: 1;
+  visibility: visible;
+}
+
+.teamspeak-icon:hover ~ .teamspeak-link {
   opacity: 1;
   visibility: visible;
 }
