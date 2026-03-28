@@ -29,11 +29,11 @@
         <!-- 社交图标 -->
         <div class="social-icons-container">
           <div class="social-icons">
-            <div class="social-icon github-icon">
+            <a href="https://github.com/kernel12345" target="_blank" class="social-icon github-icon">
               <svg class="icon" width="16" height="16">
                 <use xlink:href="/icons.svg#github-icon"></use>
               </svg>
-            </div>
+            </a>
             <a href="https://steamcommunity.com/chat/invite/JEkxtvGe" target="_blank" class="social-icon steam-icon">
               <img src="/images/steam.png" alt="Steam" width="16" height="16">
             </a>
