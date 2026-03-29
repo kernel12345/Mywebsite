@@ -37,7 +37,7 @@
             <a href="https://steamcommunity.com/chat/invite/JEkxtvGe" target="_blank" class="social-icon steam-icon">
               <img src="/images/steam.png" alt="Steam" width="16" height="16">
             </a>
-            <a href="#" target="_blank" class="social-icon teamspeak-icon">
+            <a href="#" @click.prevent="openTeamspeakModal" class="social-icon teamspeak-icon">
               <img src="/images/teamspeak.png" alt="Teamspeak" width="16" height="16">
             </a>
             <a href="https://qm.qq.com/q/bDK3BOyEr6" target="_blank" class="social-icon qq-icon">
@@ -110,11 +110,37 @@
     <div class="footer">
       <p>Copyright © 2025 - 2026 | Made by 韦旅淦</p>
     </div>
+    
+    <!-- TeamSpeak 弹窗 -->
+    <transition name="modal">
+      <div v-show="showTeamspeakModal" class="modal-overlay" @click="closeTeamspeakModal">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>加入TeamSpeak</h3>
+            <button class="modal-close" @click="closeTeamspeakModal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>我们的TeamSpeak服务器：122.11.111.1</p>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+
+// TeamSpeak 弹窗
+const showTeamspeakModal = ref(false);
+
+const openTeamspeakModal = () => {
+  showTeamspeakModal.value = true;
+};
+
+const closeTeamspeakModal = () => {
+  showTeamspeakModal.value = false;
+};
 
 // 时间相关
 const currentTime = ref('');
@@ -323,6 +349,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  cursor: url('/images/Cursors.png') 8 8, auto !important;
+}
+
+.home * {
+  cursor: url('/images/Cursors.png') 8 8, auto !important;
 }
 
 .background {
@@ -696,5 +727,105 @@ onUnmounted(() => {
   .feature-button {
     padding: 1.2rem 1rem;
   }
+}
+
+/* TeamSpeak 弹窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 弹窗过渡动画 */
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-content,
+.modal-leave-to .modal-content {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.modal-body {
+  color: white;
+  line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.modal-body p {
+  margin: 0;
+  font-size: 1rem;
 }
 </style>

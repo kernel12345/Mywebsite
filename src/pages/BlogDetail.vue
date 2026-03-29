@@ -42,6 +42,11 @@ onMounted(async () => {
   margin: 0 auto;
   padding: 2rem;
   transition: box-shadow 0.3s ease;
+  cursor: url('/images/Cursors.png') 8 8, auto !important;
+}
+
+.blog-detail * {
+  cursor: url('/images/Cursors.png') 8 8, auto !important;
 }
 
 .blog-detail:hover {

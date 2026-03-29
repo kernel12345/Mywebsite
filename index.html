@@ -2,9 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/images/XDCS.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>兄弟cs官网</title>
+    <style>
+      body {
+        cursor: url('/images/Cursors.png'), auto;
+      }
+      a, button {
+        cursor: url('/images/Cursors.png'), pointer;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>
@@ -12,5 +20,16 @@
     <!-- 浮沉API特效 -->
     <script src="https://api.fuchenboke.cn/api/xuehua.js"></script>
     <script src="https://api.fuchenboke.cn/api/dianjibaozha.js"></script>
+    <!-- 设置鼠标指针 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.style.cursor = 'url("/images/Cursors.png"), auto';
+        const elements = document.querySelectorAll('*');
+        elements.forEach(function(element) {
+          element.style.cursor = 'url("/images/Cursors.png"), auto';
+        });
+      });
+    </script>
+
   </body>
 </html>

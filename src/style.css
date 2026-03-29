@@ -3,6 +3,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  cursor: url('/images/Cursors.png') 8 8, auto !important;
 }
 
 body {
@@ -11,6 +12,12 @@ body {
   color: #333;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;
+  cursor: url('/images/Cursors.png') 8 8, auto !important;
+}
+
+/* 链接和按钮的鼠标指针 */
+a, button {
+  cursor: url('/images/Cursors.png') 8 8, pointer !important;
 }
 
 /* 毛玻璃效果类 */
