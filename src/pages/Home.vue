@@ -43,6 +43,9 @@
             <a href="https://qm.qq.com/q/bDK3BOyEr6" target="_blank" class="social-icon qq-icon">
               <img src="/images/qq.png" alt="QQ" width="16" height="16">
             </a>
+            <a href="#" @click.prevent="openWechatModal" class="social-icon wechat-icon">
+              <img src="/images/WeChat.png" alt="WeChat" width="16" height="16">
+            </a>
             <div class="github-link">
               去 Github 看看
             </div>
@@ -53,7 +56,10 @@
               加入QQ群
             </div>
             <div class="teamspeak-link">
-              加入我们的teamspeak频道
+              加入teamspeak频道
+            </div>
+            <div class="wechat-link">
+              关注我们公众号
             </div>
           </div>
         </div>
@@ -78,10 +84,10 @@
         
         <!-- 功能按钮 -->
         <div class="feature-buttons">
-          <a href="#" class="feature-button glass">
+          <router-link to="/blog" class="feature-button glass">
             <span class="button-icon">📝</span>
             <span class="button-text">博客</span>
-          </a>
+          </router-link>
           <a href="#" class="feature-button glass">
             <span class="button-icon">☁️</span>
             <span class="button-text">网盘</span>
@@ -120,7 +126,24 @@
             <button class="modal-close" @click="closeTeamspeakModal">&times;</button>
           </div>
           <div class="modal-body">
-            <p>我们的TeamSpeak服务器：122.11.111.1</p>
+            <p>我们的TeamSpeak服务器：xdcs2201.ts3.uno</p>
+          </div>
+        </div>
+      </div>
+    </transition>
+    
+    <!-- 微信公众号弹窗 -->
+    <transition name="modal">
+      <div v-show="showWechatModal" class="modal-overlay" @click="closeWechatModal">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>关注我们公众号</h3>
+            <button class="modal-close" @click="closeWechatModal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="qrcode-container">
+              <img src="/images/gzh.png" alt="公众号二维码" class="qrcode-image">
+            </div>
           </div>
         </div>
       </div>
@@ -140,6 +163,17 @@ const openTeamspeakModal = () => {
 
 const closeTeamspeakModal = () => {
   showTeamspeakModal.value = false;
+};
+
+// 微信公众号弹窗
+const showWechatModal = ref(false);
+
+const openWechatModal = () => {
+  showWechatModal.value = true;
+};
+
+const closeWechatModal = () => {
+  showWechatModal.value = false;
 };
 
 // 时间相关
@@ -521,7 +555,7 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-.github-link, .steam-link, .qq-link, .teamspeak-link {
+.github-link, .steam-link, .qq-link, .teamspeak-link, .wechat-link {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
@@ -548,6 +582,11 @@ onUnmounted(() => {
 }
 
 .teamspeak-icon:hover ~ .teamspeak-link {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wechat-icon:hover ~ .wechat-link {
   opacity: 1;
   visibility: visible;
 }
@@ -827,5 +866,19 @@ onUnmounted(() => {
 .modal-body p {
   margin: 0;
   font-size: 1rem;
+}
+
+.qrcode-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.qrcode-image {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 </style>
