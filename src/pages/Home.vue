@@ -88,10 +88,10 @@
             <span class="button-icon">📝</span>
             <span class="button-text">博客</span>
           </router-link>
-          <a href="#" class="feature-button glass">
-            <span class="button-icon">☁️</span>
-            <span class="button-text">网盘</span>
-          </a>
+          <router-link to="/shop" class="feature-button glass">
+            <span class="button-icon">🛍️</span>
+            <span class="button-text">小店</span>
+          </router-link>
           <a href="#" class="feature-button glass">
             <span class="button-icon">🎵</span>
             <span class="button-text">音乐</span>
@@ -240,7 +240,7 @@ const getRandomQuote = async () => {
       setTimeout(() => {
         isFading.value = false;
       }, 100);
-    }, 2500);
+    }, 2000);
   } catch (error) {
     console.error('获取名言失败:', error);
     // 出错时也要恢复显示
@@ -622,7 +622,7 @@ onUnmounted(() => {
 }
 
 .quote-card > div {
-  transition: opacity 2.5s ease-in-out;
+  transition: opacity 2s ease-in-out;
 }
 
 .quote-card > div.fade {

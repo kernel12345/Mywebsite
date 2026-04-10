@@ -19,8 +19,8 @@
           <li class="nav-item" :class="{ active: currentPath === '/admin/tools' }">
             <router-link to="/admin/tools">系统工具</router-link>
           </li>
-          <li class="nav-item" :class="{ active: currentPath === '/admin/ruoyi' }">
-            <router-link to="/admin/ruoyi">若依官网</router-link>
+          <li class="nav-item" :class="{ active: currentPath === '/admin/shop' }">
+            <router-link to="/admin/shop">小店管理</router-link>
           </li>
           <li class="nav-item" :class="{ active: currentPath === '/admin/test' }">
             <router-link to="/admin/test">测试目录</router-link>

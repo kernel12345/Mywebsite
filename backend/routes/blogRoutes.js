@@ -29,10 +29,12 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const blog = new Blog({
     title: req.body.title,
-    content: req.body.content,
+    content: req.body.content || '',
     excerpt: req.body.excerpt,
     category: req.body.category,
     date: req.body.date,
+    status: req.body.status || 'draft',
+    tags: req.body.tags || [],
     author: req.body.author
   });
 
@@ -57,6 +59,8 @@ router.put('/:id', async (req, res) => {
     blog.excerpt = req.body.excerpt || blog.excerpt;
     blog.category = req.body.category || blog.category;
     blog.date = req.body.date || blog.date;
+    blog.status = req.body.status || blog.status;
+    blog.tags = req.body.tags || blog.tags;
 
     const updatedBlog = await blog.save();
     res.json(updatedBlog);

@@ -21,6 +21,15 @@ const BlogSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  status: {
+    type: String,
+    required: true,
+    default: 'draft'
+  },
+  tags: {
+    type: [String],
+    default: []
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

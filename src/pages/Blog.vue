@@ -8,6 +8,7 @@
           <div class="nav-links">
             <a href="/" class="nav-link">首页</a>
             <a href="/blog" class="nav-link active">文章</a>
+            <a href="/shop" class="nav-link">小店</a>
             <a href="#" @click.prevent="openLoginModal" class="nav-link login-button">登录</a>
           </div>
         </div>
@@ -36,7 +37,7 @@
     <div class="blog-content">
       <!-- 博客列表 -->
       <div class="blog-list">
-        <div v-for="blog in blogs" :key="blog.id" class="blog-card">
+        <div v-for="blog in blogs" :key="blog._id" class="blog-card">
           <div class="blog-card-header">
             <h2 class="blog-card-title">{{ blog.title }}</h2>
           </div>
@@ -82,7 +83,7 @@
       <div class="sidebar-section">
         <h3 class="sidebar-title">最新文章</h3>
         <ul class="latest-posts">
-          <li v-for="post in latestPosts" :key="post.id" class="latest-post">
+          <li v-for="post in latestPosts" :key="post._id" class="latest-post">
             <a href="#" class="latest-post-link">{{ post.title }}</a>
           </li>
         </ul>
@@ -150,37 +151,32 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getBlogs } from '../services/api';
 
 const router = useRouter();
 
-// 从localStorage获取博客数据
+// 从API获取博客数据
 const blogs = ref([]);
 const latestPosts = ref([]);
 
 // 获取文章数据
-const getArticles = () => {
+const getArticles = async () => {
   console.log('调用getArticles函数');
-  const savedArticles = localStorage.getItem('articles');
-  console.log('从localStorage获取的文章数据:', savedArticles);
-  if (savedArticles) {
-    try {
-      const articles = JSON.parse(savedArticles);
-      console.log('解析后的文章数据:', articles);
-      // 只显示已发布的文章
-      blogs.value = articles.filter(article => article.status === 'published');
-      console.log('已发布的文章:', blogs.value);
-      // 最新文章
-      latestPosts.value = articles
-        .filter(article => article.status === 'published')
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 4)
-        .map(article => ({ id: article.id, title: article.title }));
-      console.log('最新文章:', latestPosts.value);
-    } catch (error) {
-      console.error('解析文章数据时出错:', error);
-    }
-  } else {
-    console.log('localStorage中没有文章数据');
+  try {
+    const articles = await getBlogs();
+    console.log('从API获取的文章数据:', articles);
+    // 只显示已发布的文章
+    blogs.value = articles.filter(article => article.status === 'published');
+    console.log('已发布的文章:', blogs.value);
+    // 最新文章
+    latestPosts.value = articles
+      .filter(article => article.status === 'published')
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 4)
+      .map(article => ({ id: article._id, title: article.title }));
+    console.log('最新文章:', latestPosts.value);
+  } catch (error) {
+    console.error('获取文章数据时出错:', error);
   }
 };
 
@@ -303,8 +299,8 @@ const handleRegister = () => {
   switchToLogin();
 };
 
-onMounted(() => {
-  getArticles();
+onMounted(async () => {
+  await getArticles();
 });
 </script>
 

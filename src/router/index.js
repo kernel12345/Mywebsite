@@ -9,6 +9,8 @@ import SystemMonitoring from '../pages/SystemMonitoring.vue';
 import SystemTools from '../pages/SystemTools.vue';
 import RuoYiWebsite from '../pages/RuoYiWebsite.vue';
 import TestDirectory from '../pages/TestDirectory.vue';
+import Shop from '../pages/Shop.vue';
+import ShopManagement from '../pages/ShopManagement.vue';
 
 const routes = [
   {
@@ -25,6 +27,11 @@ const routes = [
     path: '/blog/:id',
     name: 'BlogDetail',
     component: BlogDetail
+  },
+  {
+    path: '/shop',
+    name: 'Shop',
+    component: Shop
   },
   {
     path: '/admin',
@@ -44,6 +51,11 @@ const routes = [
         path: 'articles',
         name: 'ArticleManagement',
         component: ArticleManagement
+      },
+      {
+        path: 'shop',
+        name: 'ShopManagement',
+        component: ShopManagement
       },
       {
         path: 'monitoring',
