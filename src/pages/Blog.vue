@@ -153,45 +153,36 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// 模拟博客数据
-const blogs = ref([
-  {
-    id: 1,
-    title: '基于Vue 3 + Vite开发一个现代化的CS网站',
-    excerpt: '本文介绍如何使用Vue 3和Vite构建一个现代化的CS网站，包括项目初始化、组件设计、路由配置等内容。',
-    date: '2026-04-01',
-    tags: ['Vue', 'Vite', '前端']
-  },
-  {
-    id: 2,
-    title: 'CS服务器搭建与配置指南',
-    excerpt: '详细介绍如何搭建和配置CS服务器，包括硬件选择、系统安装、插件配置等内容。',
-    date: '2026-03-25',
-    tags: ['CS', '服务器', '配置']
-  },
-  {
-    id: 3,
-    title: '前端性能优化实战',
-    excerpt: '分享前端性能优化的实战经验，包括代码分割、图片优化、缓存策略等内容。',
-    date: '2026-03-18',
-    tags: ['前端', '性能优化', 'JavaScript']
-  },
-  {
-    id: 4,
-    title: 'Node.js后端开发实践',
-    excerpt: '介绍Node.js后端开发的实践经验，包括Express框架使用、数据库设计、API开发等内容。',
-    date: '2026-03-10',
-    tags: ['Node.js', '后端', 'Express']
-  }
-]);
+// 从localStorage获取博客数据
+const blogs = ref([]);
+const latestPosts = ref([]);
 
-// 模拟最新文章数据
-const latestPosts = ref([
-  { id: 1, title: '基于Vue 3 + Vite开发一个现代化的CS网站' },
-  { id: 2, title: 'CS服务器搭建与配置指南' },
-  { id: 3, title: '前端性能优化实战' },
-  { id: 4, title: 'Node.js后端开发实践' }
-]);
+// 获取文章数据
+const getArticles = () => {
+  console.log('调用getArticles函数');
+  const savedArticles = localStorage.getItem('articles');
+  console.log('从localStorage获取的文章数据:', savedArticles);
+  if (savedArticles) {
+    try {
+      const articles = JSON.parse(savedArticles);
+      console.log('解析后的文章数据:', articles);
+      // 只显示已发布的文章
+      blogs.value = articles.filter(article => article.status === 'published');
+      console.log('已发布的文章:', blogs.value);
+      // 最新文章
+      latestPosts.value = articles
+        .filter(article => article.status === 'published')
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 4)
+        .map(article => ({ id: article.id, title: article.title }));
+      console.log('最新文章:', latestPosts.value);
+    } catch (error) {
+      console.error('解析文章数据时出错:', error);
+    }
+  } else {
+    console.log('localStorage中没有文章数据');
+  }
+};
 
 // 登录弹窗
 const showLoginModal = ref(false);
@@ -313,7 +304,7 @@ const handleRegister = () => {
 };
 
 onMounted(() => {
-  // 可以在这里添加数据获取逻辑
+  getArticles();
 });
 </script>
 

@@ -240,7 +240,7 @@ const getRandomQuote = async () => {
       setTimeout(() => {
         isFading.value = false;
       }, 100);
-    }, 500);
+    }, 2500);
   } catch (error) {
     console.error('获取名言失败:', error);
     // 出错时也要恢复显示
@@ -357,7 +357,7 @@ onMounted(() => {
   // 调用天气数据获取函数
   getWeatherData();
   timer = setInterval(updateTime, 1000);
-  quoteTimer = setInterval(getRandomQuote, 10000); // 每10秒更新一次名言
+  quoteTimer = setInterval(getRandomQuote, 30000); // 每30秒更新一次名言
   weatherTimer = setInterval(getWeatherData, 300000); // 每5分钟更新一次天气
 });
 
@@ -622,7 +622,7 @@ onUnmounted(() => {
 }
 
 .quote-card > div {
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 2.5s ease-in-out;
 }
 
 .quote-card > div.fade {

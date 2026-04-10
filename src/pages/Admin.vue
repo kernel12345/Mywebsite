@@ -7,22 +7,22 @@
       </div>
       <nav class="sidebar-nav">
         <ul>
-          <li class="nav-item active">
+          <li class="nav-item" :class="{ active: currentPath === '/admin' }">
             <router-link to="/admin">首页</router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" :class="{ active: currentPath === '/admin/articles' }">
             <router-link to="/admin/articles">文章管理</router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" :class="{ active: currentPath === '/admin/monitoring' }">
             <router-link to="/admin/monitoring">系统监控</router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" :class="{ active: currentPath === '/admin/tools' }">
             <router-link to="/admin/tools">系统工具</router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" :class="{ active: currentPath === '/admin/ruoyi' }">
             <router-link to="/admin/ruoyi">若依官网</router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" :class="{ active: currentPath === '/admin/test' }">
             <router-link to="/admin/test">测试目录</router-link>
           </li>
         </ul>
@@ -56,10 +56,14 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
+
+// 当前路径
+const currentPath = computed(() => route.path);
 
 // 检查用户是否已登录且是管理员
 const checkAdminStatus = () => {
@@ -129,6 +133,12 @@ onMounted(() => {
 
 .nav-item {
   padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.nav-item.active {
+  border-left: 4px solid #3498db;
+  padding-left: calc(1rem - 4px);
 }
 
 .nav-item a {
@@ -143,6 +153,10 @@ onMounted(() => {
 .nav-item a:hover {
   color: white;
   background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+  border-left: 4px solid #3498db;
 }
 
 .nav-item.active a,
@@ -239,6 +253,184 @@ onMounted(() => {
 .admin-content {
   padding: 1.5rem;
   min-height: calc(100vh - 60px);
+}
+
+/* 管理页首页样式 */
+.dashboard {
+  width: 100%;
+}
+
+/* 统计卡片区域 */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.stat-card.green .stat-icon {
+  background: #27ae60;
+}
+
+.stat-card.red .stat-icon {
+  background: #e74c3c;
+}
+
+.stat-card.teal .stat-icon {
+  background: #1abc9c;
+}
+
+.stat-card.purple .stat-icon {
+  background: #9b59b6;
+}
+
+.stat-card.blue .stat-icon {
+  background: #3498db;
+}
+
+.stat-card.orange .stat-icon {
+  background: #f39c12;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* 图表区域 */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.chart-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.chart-container {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-chart {
+  width: 100%;
+  height: 100%;
+  background: #f8f9fa;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7f8c8d;
+}
+
+/* 表格区域 */
+.table-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-section h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.status-tag {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-tag.pending {
+  background: #f39c12;
+  color: white;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-card {
+    min-width: unset;
+  }
 }
 
 /* 响应式设计 */
