@@ -149,6 +149,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // 模拟博客数据
 const blogs = ref([
@@ -271,6 +274,11 @@ const handleLogin = () => {
   console.log('登录信息:', loginForm.value);
   alert('登录成功！');
   closeLoginModal();
+  
+  // 如果是管理员，跳转到管理员页面
+  if (user.isAdmin) {
+    router.push('/admin');
+  }
 };
 
 const handleRegister = () => {
