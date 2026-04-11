@@ -4,13 +4,14 @@ import Blog from '../pages/Blog.vue';
 import BlogDetail from '../pages/BlogDetail.vue';
 import Admin from '../pages/Admin.vue';
 import AdminHome from '../pages/AdminHome.vue';
+import ProductManagement from '../pages/ProductManagement.vue';
 import ArticleManagement from '../pages/ArticleManagement.vue';
+import CategoryManagement from '../pages/CategoryManagement.vue';
 import SystemMonitoring from '../pages/SystemMonitoring.vue';
 import SystemTools from '../pages/SystemTools.vue';
 import RuoYiWebsite from '../pages/RuoYiWebsite.vue';
 import TestDirectory from '../pages/TestDirectory.vue';
 import Shop from '../pages/Shop.vue';
-import ShopManagement from '../pages/ShopManagement.vue';
 
 const routes = [
   {
@@ -48,14 +49,19 @@ const routes = [
         component: AdminHome
       },
       {
+        path: 'products',
+        name: 'ProductManagement',
+        component: ProductManagement
+      },
+      {
         path: 'articles',
         name: 'ArticleManagement',
         component: ArticleManagement
       },
       {
-        path: 'shop',
-        name: 'ShopManagement',
-        component: ShopManagement
+        path: 'categories',
+        name: 'CategoryManagement',
+        component: CategoryManagement
       },
       {
         path: 'monitoring',

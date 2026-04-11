@@ -224,23 +224,33 @@ const updateTime = () => {
 };
 
 // 获取随机名言
-const getRandomQuote = async () => {
+const getRandomQuote = async (isInitialLoad = false) => {
   try {
-    // 触发淡出效果
-    isFading.value = true;
+    // 非初始加载时才触发淡出效果
+    if (!isInitialLoad) {
+      isFading.value = true;
+    }
     
-    // 等待淡出完成后更新内容
-    setTimeout(async () => {
+    // 初始加载时直接获取，非初始加载时等待淡出完成
+    if (isInitialLoad) {
       const response = await fetch('https://v1.hitokoto.cn/');
       const data = await response.json();
       quoteText.value = data.hitokoto;
       quoteAuthor.value = data.from;
-      
-      // 触发淡入效果
-      setTimeout(() => {
-        isFading.value = false;
-      }, 100);
-    }, 2000);
+    } else {
+      // 等待淡出完成后更新内容
+      setTimeout(async () => {
+        const response = await fetch('https://v1.hitokoto.cn/');
+        const data = await response.json();
+        quoteText.value = data.hitokoto;
+        quoteAuthor.value = data.from;
+        
+        // 触发淡入效果
+        setTimeout(() => {
+          isFading.value = false;
+        }, 100);
+      }, 2000);
+    }
   } catch (error) {
     console.error('获取名言失败:', error);
     // 出错时也要恢复显示
@@ -349,7 +359,7 @@ let weatherTimer = null;
 
 onMounted(() => {
   updateTime();
-  getRandomQuote();
+  getRandomQuote(true); // 传递isInitialLoad参数，确保页面加载时立即获取名言
   getRandomBackground(); // 获取随机背景图片
   // 直接设置天气数据
   weather.value = '15°C 大部分晴天';

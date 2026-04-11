@@ -1,25 +1,25 @@
 <template>
-  <div class="article-management">
+  <div class="product-management">
     <div class="page-header">
-      <h2>文章管理</h2>
+      <h2>商品管理</h2>
       <div class="header-actions">
-        <button class="btn btn-secondary" @click="handleExportArticles">导出文章</button>
-        <input type="file" ref="importFile" style="display: none" accept=".json" @change="handleImportArticles">
-        <button class="btn btn-secondary" @click="$refs.importFile.click()">导入文章</button>
-        <button class="btn btn-primary" @click="openAddModal">添加文章</button>
+        <button class="btn btn-secondary" @click="handleExportProducts">导出商品</button>
+        <input type="file" ref="importFile" style="display: none" accept=".json" @change="handleImportProducts">
+        <button class="btn btn-secondary" @click="$refs.importFile.click()">导入商品</button>
+        <button class="btn btn-primary" @click="openAddModal">添加商品</button>
       </div>
     </div>
 
     <!-- 搜索和筛选 -->
     <div class="search-filter">
       <div class="search-box">
-        <input type="text" v-model="searchQuery" placeholder="搜索文章标题" class="form-input">
-        <button class="btn btn-secondary" @click="fetchArticles">搜索</button>
+        <input type="text" v-model="searchQuery" placeholder="搜索商品名称" class="form-input">
+        <button class="btn btn-secondary" @click="fetchProducts">搜索</button>
       </div>
       <div class="filter-box">
         <select v-model="filterCategory" class="form-select">
           <option value="">全部分类</option>
-          <option v-for="category in articleCategories" :key="category.id" :value="category.id">{{ category.name }}</option>
+          <option v-for="category in productCategories" :key="category.id" :value="category.id">{{ category.name }}</option>
         </select>
         <select v-model="filterStatus" class="form-select">
           <option value="">全部状态</option>
@@ -27,46 +27,41 @@
           <option value="draft">草稿</option>
           <option value="archived">已归档</option>
         </select>
-        <button class="btn btn-secondary" @click="fetchArticles">筛选</button>
+        <button class="btn btn-secondary" @click="fetchProducts">筛选</button>
       </div>
     </div>
 
-    <!-- 文章列表 -->
-    <div class="article-list">
+    <!-- 商品列表 -->
+    <div class="product-list">
       <table class="table">
         <thead>
           <tr>
             <th><input type="checkbox" v-model="selectAll"></th>
             <th>ID</th>
-            <th>标题</th>
+            <th>名称</th>
             <th>分类</th>
-            <th>标签</th>
+            <th>价格</th>
+            <th>库存</th>
             <th>状态</th>
             <th>创建时间</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="article in articles" :key="article.id">
-            <td><input type="checkbox" v-model="selectedArticles" :value="article.id"></td>
-            <td>{{ article.id }}</td>
-            <td>{{ article.title }}</td>
-            <td>{{ article.Category ? article.Category.name : '未分类' }}</td>
+          <tr v-for="product in products" :key="product.id">
+            <td><input type="checkbox" v-model="selectedProducts" :value="product.id"></td>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.Category ? product.Category.name : '未分类' }}</td>
+            <td>¥{{ product.price }}</td>
+            <td>{{ product.stock }}</td>
             <td>
-              <span v-for="(tag, index) in article.tags" :key="index" class="tag">{{ tag }}</span>
+              <span :class="['status-badge', product.status]">{{ product.status }}</span>
             </td>
+            <td>{{ formatDate(product.createdAt) }}</td>
             <td>
-              <span :class="['status-badge', article.status]">{{ article.status }}</span>
-            </td>
-            <td>{{ formatDate(article.createdAt) }}</td>
-            <td>
-              <button class="btn btn-sm btn-primary" @click="openEditModal(article)">编辑</button>
-              <button class="btn btn-sm btn-danger" @click="handleDeleteArticle(article.id)">删除</button>
-              <select class="form-select-sm status-select" @change="updateArticleStatus(article.id, $event.target.value)" :value="article.status">
-                <option value="published">已发布</option>
-                <option value="draft">草稿</option>
-                <option value="archived">已归档</option>
-              </select>
+              <button class="btn btn-sm btn-primary" @click="openEditModal(product)">编辑</button>
+              <button class="btn btn-sm btn-danger" @click="handleDeleteProduct(product.id)">删除</button>
             </td>
           </tr>
         </tbody>
@@ -81,8 +76,8 @@
     </div>
 
     <!-- 批量操作 -->
-    <div class="batch-actions" v-if="selectedArticles.length > 0">
-      <span>已选择 {{ selectedArticles.length }} 篇文章</span>
+    <div class="batch-actions" v-if="selectedProducts.length > 0">
+      <span>已选择 {{ selectedProducts.length }} 个商品</span>
       <button class="btn btn-sm btn-danger" @click="batchDelete">批量删除</button>
       <select v-model="batchStatus" class="form-select-sm">
         <option value="">批量更新状态</option>
@@ -93,41 +88,45 @@
       <button class="btn btn-sm btn-secondary" @click="batchUpdateStatus" :disabled="!batchStatus">更新状态</button>
     </div>
 
-    <!-- 添加/编辑文章弹窗 -->
+    <!-- 添加/编辑商品弹窗 -->
     <transition name="modal">
       <div v-show="showModal" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
           <div class="modal-header">
-            <h3>{{ isEdit ? '编辑文章' : '添加文章' }}</h3>
+            <h3>{{ isEdit ? '编辑商品' : '添加商品' }}</h3>
             <button class="modal-close" @click="closeModal">&times;</button>
           </div>
           <div class="modal-body">
             <div class="form-group">
-              <label for="article-title">文章标题</label>
-              <input type="text" id="article-title" v-model="formData.title" class="form-input" placeholder="请输入文章标题">
+              <label for="product-name">商品名称</label>
+              <input type="text" id="product-name" v-model="formData.name" class="form-input" placeholder="请输入商品名称">
             </div>
             <div class="form-group">
-              <label for="article-content">文章内容</label>
-              <textarea id="article-content" v-model="formData.content" class="form-textarea" placeholder="请输入文章内容"></textarea>
+              <label for="product-description">商品描述</label>
+              <textarea id="product-description" v-model="formData.description" class="form-textarea" placeholder="请输入商品描述"></textarea>
             </div>
             <div class="form-group">
-              <label for="article-excerpt">摘要</label>
-              <textarea id="article-excerpt" v-model="formData.excerpt" class="form-textarea" placeholder="请输入文章摘要"></textarea>
+              <label for="product-price">价格</label>
+              <input type="number" id="product-price" v-model="formData.price" class="form-input" placeholder="请输入价格" step="0.01">
             </div>
             <div class="form-group">
-              <label for="article-category">分类</label>
-              <select id="article-category" v-model="formData.categoryId" class="form-select">
+              <label for="product-stock">库存</label>
+              <input type="number" id="product-stock" v-model="formData.stock" class="form-input" placeholder="请输入库存">
+            </div>
+            <div class="form-group">
+              <label for="product-category">分类</label>
+              <select id="product-category" v-model="formData.categoryId" class="form-select">
                 <option value="">请选择分类</option>
-                <option v-for="category in articleCategories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                <option v-for="category in productCategories" :key="category.id" :value="category.id">{{ category.name }}</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="article-tags">标签（逗号分隔）</label>
-              <input type="text" id="article-tags" v-model="formData.tags" class="form-input" placeholder="请输入标签，用逗号分隔">
+              <label for="product-image">图片</label>
+              <input type="text" id="product-image" v-model="formData.image" class="form-input" placeholder="请输入图片URL">
             </div>
             <div class="form-group">
-              <label for="article-status">状态</label>
-              <select id="article-status" v-model="formData.status" class="form-select">
+              <label for="product-status">状态</label>
+              <select id="product-status" v-model="formData.status" class="form-select">
                 <option value="published">已发布</option>
                 <option value="draft">草稿</option>
                 <option value="archived">已归档</option>
@@ -136,7 +135,7 @@
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" @click="closeModal">取消</button>
-            <button class="btn btn-primary" @click="saveArticle" :disabled="isLoading">{{ isLoading ? '保存中...' : '保存' }}</button>
+            <button class="btn btn-primary" @click="saveProduct" :disabled="isLoading">{{ isLoading ? '保存中...' : '保存' }}</button>
           </div>
         </div>
       </div>
@@ -146,11 +145,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { getArticles, createArticle as apiCreateArticle, updateArticle as apiUpdateArticle, deleteArticle as apiDeleteArticle, deleteArticles, updateArticlesStatus, getCategories, importArticles as apiImportArticles, exportArticles as apiExportArticles } from '../services/api';
+import { getProducts, createProduct, updateProduct, deleteProduct as apiDeleteProduct, deleteProducts, updateProductsStatus, getCategories, importProducts as apiImportProducts, exportProducts as apiExportProducts } from '../services/api';
 
-// 文章列表数据
-const articles = ref([]);
-const totalArticles = ref(0);
+// 商品列表数据
+const products = ref([]);
+const totalProducts = ref(0);
 const totalPages = ref(1);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -161,10 +160,10 @@ const filterCategory = ref('');
 const filterStatus = ref('');
 
 // 分类列表
-const articleCategories = ref([]);
+const productCategories = ref([]);
 
 // 选择状态
-const selectedArticles = ref([]);
+const selectedProducts = ref([]);
 const selectAll = ref(false);
 const batchStatus = ref('');
 
@@ -172,24 +171,24 @@ const batchStatus = ref('');
 const showModal = ref(false);
 const isEdit = ref(false);
 const isLoading = ref(false);
-const currentArticleId = ref(null);
 const formData = ref({
-  title: '',
-  content: '',
-  excerpt: '',
-  categoryId: null,
-  tags: '',
+  name: '',
+  description: '',
+  price: '',
+  stock: '',
+  categoryId: '',
+  image: '',
   status: 'draft'
 });
 
 // 计算属性
 const selectAllComputed = computed({
-  get: () => selectedArticles.value.length === articles.value.length && articles.value.length > 0,
+  get: () => selectedProducts.value.length === products.value.length && products.value.length > 0,
   set: (value) => {
     if (value) {
-      selectedArticles.value = articles.value.map(article => article.id);
+      selectedProducts.value = products.value.map(product => product.id);
     } else {
-      selectedArticles.value = [];
+      selectedProducts.value = [];
     }
   }
 });
@@ -200,8 +199,8 @@ const formatDate = (dateString) => {
   return date.toLocaleString();
 };
 
-// 获取文章列表
-const fetchArticles = async () => {
+// 获取商品列表
+const fetchProducts = async () => {
   try {
     const params = {
       page: currentPage.value,
@@ -210,23 +209,23 @@ const fetchArticles = async () => {
       status: filterStatus.value,
       search: searchQuery.value
     };
-    const response = await getArticles(params);
-    articles.value = response.articles;
-    totalArticles.value = response.total;
+    const response = await getProducts(params);
+    products.value = response.products;
+    totalProducts.value = response.total;
     totalPages.value = response.pages;
     currentPage.value = response.currentPage;
     // 重置选择
-    selectedArticles.value = [];
+    selectedProducts.value = [];
   } catch (error) {
-    console.error('获取文章列表失败:', error);
+    console.error('获取商品列表失败:', error);
   }
 };
 
 // 获取分类列表
 const fetchCategories = async () => {
   try {
-    const categories = await getCategories('article');
-    articleCategories.value = categories;
+    const categories = await getCategories('product');
+    productCategories.value = categories;
   } catch (error) {
     console.error('获取分类列表失败:', error);
   }
@@ -236,27 +235,28 @@ const fetchCategories = async () => {
 const openAddModal = () => {
   isEdit.value = false;
   formData.value = {
-    title: '',
-    content: '',
-    excerpt: '',
-    categoryId: null,
-    tags: '',
+    name: '',
+    description: '',
+    price: '',
+    stock: '',
+    categoryId: '',
+    image: '',
     status: 'draft'
   };
   showModal.value = true;
 };
 
 // 打开编辑弹窗
-const openEditModal = (article) => {
+const openEditModal = (product) => {
   isEdit.value = true;
-  currentArticleId.value = article.id;
   formData.value = {
-    title: article.title,
-    content: article.content,
-    excerpt: article.excerpt,
-    categoryId: article.categoryId || '',
-    tags: Array.isArray(article.tags) ? article.tags.join(',') : article.tags || '',
-    status: article.status
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    stock: product.stock,
+    categoryId: product.categoryId || '',
+    image: product.image || '',
+    status: product.status
   };
   showModal.value = true;
 };
@@ -264,147 +264,115 @@ const openEditModal = (article) => {
 // 关闭弹窗
 const closeModal = () => {
   showModal.value = false;
-  currentArticleId.value = null;
 };
 
-// 保存文章
-const saveArticle = async () => {
+// 保存商品
+const saveProduct = async () => {
   try {
-    // 验证必填字段
-    if (!formData.value.title) {
-      alert('请输入文章标题');
-      return;
-    }
-    if (!formData.value.content) {
-      alert('请输入文章内容');
-      return;
-    }
-    
     isLoading.value = true;
-    // 处理标签，将逗号分隔的字符串转换为数组
-    const tagsArray = formData.value.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-    const articleData = {
-      ...formData.value,
-      tags: tagsArray.length > 0 ? tagsArray : '',
-      categoryId: formData.value.categoryId ? parseInt(formData.value.categoryId) : null
-    };
-    
-    console.log('Sending article data:', articleData);
-    
     if (isEdit.value) {
-      await apiUpdateArticle(currentArticleId.value, articleData);
+      await updateProduct(products.value.find(p => p.name === formData.value.name).id, formData.value);
     } else {
-      await apiCreateArticle(articleData);
+      await createProduct(formData.value);
     }
     closeModal();
-    fetchArticles();
+    fetchProducts();
   } catch (error) {
-    console.error('保存文章失败:', error);
-    alert(`保存文章失败: ${error.message}`);
+    console.error('保存商品失败:', error);
   } finally {
     isLoading.value = false;
   }
 };
 
-// 删除文章
-const handleDeleteArticle = async (id) => {
-  if (confirm('确定要删除这篇文章吗？')) {
+// 删除商品
+const handleDeleteProduct = async (id) => {
+  if (confirm('确定要删除这个商品吗？')) {
     try {
-      await apiDeleteArticle(id);
-      fetchArticles();
+      await apiDeleteProduct(id);
+      fetchProducts();
     } catch (error) {
-      console.error('删除文章失败:', error);
+      console.error('删除商品失败:', error);
     }
   }
 };
 
 // 批量删除
 const batchDelete = async () => {
-  if (confirm(`确定要删除选中的 ${selectedArticles.value.length} 篇文章吗？`)) {
+  if (confirm(`确定要删除选中的 ${selectedProducts.value.length} 个商品吗？`)) {
     try {
-      await deleteArticles(selectedArticles.value);
-      fetchArticles();
+      await deleteProducts(selectedProducts.value);
+      fetchProducts();
     } catch (error) {
-      console.error('批量删除文章失败:', error);
+      console.error('批量删除商品失败:', error);
     }
   }
 };
 
 // 批量更新状态
 const batchUpdateStatus = async () => {
-  if (batchStatus.value && confirm(`确定要将选中的 ${selectedArticles.value.length} 篇文章状态更新为 ${batchStatus.value} 吗？`)) {
+  if (batchStatus.value && confirm(`确定要将选中的 ${selectedProducts.value.length} 个商品状态更新为 ${batchStatus.value} 吗？`)) {
     try {
-      await updateArticlesStatus(selectedArticles.value, batchStatus.value);
-      fetchArticles();
+      await updateProductsStatus(selectedProducts.value, batchStatus.value);
+      fetchProducts();
     } catch (error) {
-      console.error('批量更新文章状态失败:', error);
+      console.error('批量更新商品状态失败:', error);
     }
-  }
-};
-
-// 更新单个文章状态
-const updateArticleStatus = async (id, status) => {
-  try {
-    await updateArticlesStatus([id], status);
-    fetchArticles();
-  } catch (error) {
-    console.error('更新文章状态失败:', error);
   }
 };
 
 // 切换页码
 const changePage = (page) => {
   currentPage.value = page;
-  fetchArticles();
+  fetchProducts();
 };
 
 // 初始化
 onMounted(async () => {
   await fetchCategories();
-  await fetchArticles();
+  await fetchProducts();
 });
 
-// 导出文章
-const handleExportArticles = async () => {
+// 导出商品
+const handleExportProducts = async () => {
   try {
-    const articlesData = await apiExportArticles();
-    const blob = new Blob([JSON.stringify(articlesData, null, 2)], { type: 'application/json' });
+    const productsData = await apiExportProducts();
+    const blob = new Blob([JSON.stringify(productsData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `articles_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `products_${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('导出文章失败:', error);
+    console.error('导出商品失败:', error);
   }
 };
 
-// 导入文章
-const handleImportArticles = async (event) => {
+// 导入商品
+const handleImportProducts = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
   
   try {
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const articlesData = JSON.parse(e.target.result);
-      await apiImportArticles(articlesData);
-      fetchArticles();
+      const productsData = JSON.parse(e.target.result);
+      await apiImportProducts(productsData);
+      fetchProducts();
       // 重置文件输入
       event.target.value = '';
     };
     reader.readAsText(file);
   } catch (error) {
-    console.error('导入文章失败:', error);
+    console.error('导入商品失败:', error);
   }
 };
 </script>
 
 <style scoped>
-.article-management {
+.product-management {
   padding: 20px;
   background: #1a1a1a;
   min-height: 100vh;
@@ -498,7 +466,7 @@ const handleImportArticles = async (event) => {
   font-size: 12px;
 }
 
-.article-list {
+.product-list {
   margin-bottom: 20px;
 }
 
@@ -548,17 +516,6 @@ const handleImportArticles = async (event) => {
   color: #9e9e9e;
 }
 
-.tag {
-  display: inline-block;
-  padding: 2px 6px;
-  background: rgba(76, 175, 80, 0.2);
-  color: #4CAF50;
-  border-radius: 8px;
-  font-size: 10px;
-  margin-right: 4px;
-  margin-bottom: 4px;
-}
-
 .pagination {
   display: flex;
   justify-content: center;
@@ -585,11 +542,6 @@ const handleImportArticles = async (event) => {
   font-size: 12px;
 }
 
-.status-select {
-  margin-top: 5px;
-  width: 100px;
-}
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -609,10 +561,8 @@ const handleImportArticles = async (event) => {
   -webkit-backdrop-filter: blur(16px);
   border-radius: 12px;
   padding: 20px;
-  max-width: 800px;
+  max-width: 600px;
   width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
@@ -711,10 +661,6 @@ const handleImportArticles = async (event) => {
   .batch-actions {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .modal-content {
-    max-width: 95%;
   }
 }
 </style>

@@ -37,7 +37,7 @@
     <div class="blog-content">
       <!-- 博客列表 -->
       <div class="blog-list">
-        <div v-for="blog in blogs" :key="blog._id" class="blog-card">
+        <div v-for="blog in blogs" :key="blog.id" class="blog-card">
           <div class="blog-card-header">
             <h2 class="blog-card-title">{{ blog.title }}</h2>
           </div>
@@ -70,12 +70,9 @@
       <div class="sidebar-section">
         <h3 class="sidebar-title">热门标签</h3>
         <div class="hot-tags">
-          <a href="#" class="hot-tag">Vue</a>
-          <a href="#" class="hot-tag">JavaScript</a>
-          <a href="#" class="hot-tag">Node.js</a>
-          <a href="#" class="hot-tag">CSS</a>
-          <a href="#" class="hot-tag">前端</a>
-          <a href="#" class="hot-tag">后端</a>
+          <a v-for="tag in hotTags" :key="tag.tag" href="#" class="hot-tag">
+            {{ tag.tag }}
+          </a>
         </div>
       </div>
       
@@ -83,7 +80,7 @@
       <div class="sidebar-section">
         <h3 class="sidebar-title">最新文章</h3>
         <ul class="latest-posts">
-          <li v-for="post in latestPosts" :key="post._id" class="latest-post">
+          <li v-for="post in latestPosts" :key="post.id" class="latest-post">
             <a href="#" class="latest-post-link">{{ post.title }}</a>
           </li>
         </ul>
@@ -103,16 +100,16 @@
             <!-- 登录表单 -->
             <div v-if="isLogin" class="login-form">
               <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" v-model="loginForm.username" class="form-input" placeholder="请输入用户名">
+                <label for="email">邮箱/用户名</label>
+                <input type="text" id="email" v-model="loginForm.email" class="form-input" placeholder="请输入邮箱或用户名">
               </div>
               <div class="form-group">
                 <label for="password">密码</label>
                 <input type="password" id="password" v-model="loginForm.password" class="form-input" placeholder="请输入密码">
               </div>
               <div class="form-actions">
-                <button class="login-button" @click="handleLogin">登录</button>
-                <button class="cancel-button" @click="closeLoginModal">取消</button>
+                <button class="login-button" @click="handleLogin" :disabled="isLoading">{{ isLoading ? '登录中...' : '登录' }}</button>
+                <button class="cancel-button" @click="closeLoginModal" :disabled="isLoading">取消</button>
               </div>
               <div class="form-footer">
                 <p>还没有账号？<a href="#" @click.prevent="switchToRegister">立即注册</a></p>
@@ -126,6 +123,10 @@
                 <input type="text" id="reg-username" v-model="registerForm.username" class="form-input" placeholder="请输入用户名">
               </div>
               <div class="form-group">
+                <label for="reg-email">邮箱</label>
+                <input type="email" id="reg-email" v-model="registerForm.email" class="form-input" placeholder="请输入邮箱">
+              </div>
+              <div class="form-group">
                 <label for="reg-password">密码</label>
                 <input type="password" id="reg-password" v-model="registerForm.password" class="form-input" placeholder="请输入密码">
               </div>
@@ -134,8 +135,8 @@
                 <input type="password" id="reg-confirm-password" v-model="registerForm.confirmPassword" class="form-input" placeholder="请确认密码">
               </div>
               <div class="form-actions">
-                <button class="login-button" @click="handleRegister">注册</button>
-                <button class="cancel-button" @click="closeLoginModal">取消</button>
+                <button class="login-button" @click="handleRegister" :disabled="isLoading">{{ isLoading ? '注册中...' : '注册' }}</button>
+                <button class="cancel-button" @click="closeLoginModal" :disabled="isLoading">取消</button>
               </div>
               <div class="form-footer">
                 <p>已有账号？<a href="#" @click.prevent="switchToLogin">立即登录</a></p>
@@ -151,19 +152,21 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { getBlogs } from '../services/api';
+import { getArticles, loginUser, registerUser, getHotTags } from '../services/api';
 
 const router = useRouter();
 
 // 从API获取博客数据
 const blogs = ref([]);
 const latestPosts = ref([]);
+const hotTags = ref([]);
 
 // 获取文章数据
-const getArticles = async () => {
-  console.log('调用getArticles函数');
+const fetchArticles = async () => {
+  console.log('调用fetchArticles函数');
   try {
-    const articles = await getBlogs();
+    const response = await getArticles();
+    const articles = response.articles;
     console.log('从API获取的文章数据:', articles);
     // 只显示已发布的文章
     blogs.value = articles.filter(article => article.status === 'published');
@@ -173,8 +176,13 @@ const getArticles = async () => {
       .filter(article => article.status === 'published')
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 4)
-      .map(article => ({ id: article._id, title: article.title }));
+      .map(article => ({ id: article.id, title: article.title }));
     console.log('最新文章:', latestPosts.value);
+    
+    // 获取热门标签
+    const tags = await getHotTags();
+    hotTags.value = tags;
+    console.log('热门标签:', hotTags.value);
   } catch (error) {
     console.error('获取文章数据时出错:', error);
   }
@@ -184,14 +192,16 @@ const getArticles = async () => {
 const showLoginModal = ref(false);
 const isLogin = ref(true); // true 表示显示登录表单，false 表示显示注册表单
 const loginForm = ref({
-  username: '',
+  email: '',
   password: ''
 });
 const registerForm = ref({
   username: '',
+  email: '',
   password: '',
   confirmPassword: ''
 });
+const isLoading = ref(false);
 
 const openLoginModal = () => {
   showLoginModal.value = true;
@@ -202,14 +212,16 @@ const closeLoginModal = () => {
   showLoginModal.value = false;
   // 重置表单
   loginForm.value = {
-    username: '',
+    email: '',
     password: ''
   };
   registerForm.value = {
     username: '',
+    email: '',
     password: '',
     confirmPassword: ''
   };
+  isLoading.value = false;
 };
 
 const switchToRegister = () => {
@@ -220,87 +232,66 @@ const switchToLogin = () => {
   isLogin.value = true;
 };
 
-// 初始化用户数据，内置管理员账号
-const initUsers = () => {
-  const users = localStorage.getItem('users');
-  if (!users) {
-    // 内置管理员账号
-    const defaultUsers = {
-      'admin': {
-        username: 'admin',
-        password: 'admin123',
-        isAdmin: true
-      }
-    };
-    localStorage.setItem('users', JSON.stringify(defaultUsers));
+const handleLogin = async () => {
+  try {
+    isLoading.value = true;
+    // 调用登录API
+    const response = await loginUser(loginForm.value);
+    console.log('登录成功:', response);
+    
+    // 登录成功，存储当前用户信息
+    localStorage.setItem('currentUser', JSON.stringify({
+      username: response.user.username,
+      email: response.user.email,
+      id: response.user.id,
+      isAdmin: response.user.username === 'admin' // 假设admin用户是管理员
+    }));
+    
+    alert('登录成功！');
+    closeLoginModal();
+    
+    // 如果是管理员，跳转到管理员页面
+    if (response.user.username === 'admin') {
+      router.push('/admin');
+    }
+  } catch (error) {
+    console.error('登录失败:', error);
+    alert(`登录失败: ${error.message}`);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-// 初始化用户数据
-initUsers();
-
-const handleLogin = () => {
-  // 获取用户数据
-  const users = JSON.parse(localStorage.getItem('users') || '{}');
-  const user = users[loginForm.value.username];
-  
-  // 验证用户是否存在
-  if (!user) {
-    alert('用户不存在，请先注册！');
-    return;
-  }
-  
-  // 验证密码
-  if (user.password !== loginForm.value.password) {
-    alert('密码错误！');
-    return;
-  }
-  
-  // 登录成功，存储当前用户信息
-  localStorage.setItem('currentUser', JSON.stringify(user));
-  console.log('登录信息:', loginForm.value);
-  alert('登录成功！');
-  closeLoginModal();
-  
-  // 如果是管理员，跳转到管理员页面
-  if (user.isAdmin) {
-    router.push('/admin');
-  }
-};
-
-const handleRegister = () => {
+const handleRegister = async () => {
   // 简单的表单验证
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
     alert('两次输入的密码不一致！');
     return;
   }
   
-  // 获取用户数据
-  const users = JSON.parse(localStorage.getItem('users') || '{}');
-  
-  // 检查用户名是否已存在
-  if (users[registerForm.value.username]) {
-    alert('用户名已存在！');
-    return;
+  try {
+    isLoading.value = true;
+    // 调用注册API
+    const response = await registerUser({
+      username: registerForm.value.username,
+      email: registerForm.value.email,
+      password: registerForm.value.password
+    });
+    console.log('注册成功:', response);
+    
+    alert('注册成功！');
+    // 注册成功后切换到登录表单
+    switchToLogin();
+  } catch (error) {
+    console.error('注册失败:', error);
+    alert(`注册失败: ${error.message}`);
+  } finally {
+    isLoading.value = false;
   }
-  
-  // 注册新用户
-  users[registerForm.value.username] = {
-    username: registerForm.value.username,
-    password: registerForm.value.password,
-    isAdmin: false
-  };
-  
-  // 保存用户数据
-  localStorage.setItem('users', JSON.stringify(users));
-  console.log('注册信息:', registerForm.value);
-  alert('注册成功！');
-  // 注册成功后切换到登录表单
-  switchToLogin();
 };
 
 onMounted(async () => {
-  await getArticles();
+  await fetchArticles();
 });
 </script>
 

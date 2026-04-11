@@ -10,20 +10,20 @@
           <li class="nav-item" :class="{ active: currentPath === '/admin' }">
             <router-link to="/admin">首页</router-link>
           </li>
+          <li class="nav-item" :class="{ active: currentPath === '/admin/products' }">
+            <router-link to="/admin/products">商品管理</router-link>
+          </li>
           <li class="nav-item" :class="{ active: currentPath === '/admin/articles' }">
             <router-link to="/admin/articles">文章管理</router-link>
+          </li>
+          <li class="nav-item" :class="{ active: currentPath === '/admin/categories' }">
+            <router-link to="/admin/categories">分类管理</router-link>
           </li>
           <li class="nav-item" :class="{ active: currentPath === '/admin/monitoring' }">
             <router-link to="/admin/monitoring">系统监控</router-link>
           </li>
           <li class="nav-item" :class="{ active: currentPath === '/admin/tools' }">
             <router-link to="/admin/tools">系统工具</router-link>
-          </li>
-          <li class="nav-item" :class="{ active: currentPath === '/admin/shop' }">
-            <router-link to="/admin/shop">小店管理</router-link>
-          </li>
-          <li class="nav-item" :class="{ active: currentPath === '/admin/test' }">
-            <router-link to="/admin/test">测试目录</router-link>
           </li>
         </ul>
       </nav>

@@ -17,7 +17,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getBlogById } from '../services/api';
+import { getArticle } from '../services/api';
 
 const route = useRoute();
 const blogId = route.params.id;
@@ -26,7 +26,7 @@ const loading = ref(true);
 
 onMounted(async () => {
   try {
-    const data = await getBlogById(blogId);
+    const data = await getArticle(blogId);
     blog.value = data;
   } catch (error) {
     console.error(`Error loading blog ${blogId}:`, error);

@@ -1,15 +1,18 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const Category = require('./Category');
 
-const Blog = sequelize.define('Blog', {
+const Article = sequelize.define('Article', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    index: true
   },
   title: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    index: true
   },
   content: {
     type: DataTypes.TEXT,
@@ -19,13 +22,14 @@ const Blog = sequelize.define('Blog', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  date: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
-  category: {
-    type: DataTypes.STRING,
-    allowNull: true
+  categoryId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: Category,
+      key: 'id'
+    },
+    index: true
   },
   tags: {
     type: DataTypes.STRING,
@@ -40,8 +44,9 @@ const Blog = sequelize.define('Blog', {
     }
   },
   status: {
-    type: DataTypes.STRING,
-    defaultValue: 'published'
+    type: DataTypes.ENUM('published', 'draft', 'archived'),
+    defaultValue: 'draft',
+    index: true
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -52,8 +57,23 @@ const Blog = sequelize.define('Blog', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  tableName: 'blogs',
-  timestamps: true
+  tableName: 'articles',
+  timestamps: true,
+  indexes: [
+    {
+      fields: ['title']
+    },
+    {
+      fields: ['status']
+    },
+    {
+      fields: ['categoryId']
+    }
+  ]
 });
 
-module.exports = Blog;
+// 关联关系
+Article.belongsTo(Category, { foreignKey: 'categoryId' });
+Category.hasMany(Article, { foreignKey: 'categoryId' });
+
+module.exports = Article;
